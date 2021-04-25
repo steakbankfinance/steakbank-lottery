@@ -97,7 +97,7 @@ contract Lottery is Ownable {
         emit Drawing(_externalRandomNumber, winningRandomNumber);
     }
 
-    function multiBuy(uint8 _amount) external {
+    function multiClaim(uint8 _amount) external {
         require(!drawed(), 'drawed, can not buy now');
         require(!drawingPhase, 'drawing, can not buy now');
         require (whiteInfoUser[msg.sender] >= _amount, 'exceed tickets amount');
@@ -107,12 +107,12 @@ contract Lottery is Ownable {
 
         for (uint i = 0; i < _amount; i++) {
             uint256 tokenId = lotteryNFT.newLotteryItem(msg.sender);
-            emit Buy(msg.sender, tokenId);
+            emit Claim(msg.sender, tokenId);
         }
 
     }
 
-    function multiClaim(uint256[] memory _tickets) external {
+    function multiBuy(uint256[] memory _tickets) external {
         uint256 totalReward = 0;
         uint256 payAmount = 0;
         for (uint i = 0; i < _tickets.length; i++) {
@@ -121,7 +121,7 @@ contract Lottery is Ownable {
             if(isWinningTicket(_tickets[i])) {
                 totalReward = totalReward.add(oneTicketAmount);
                 payAmount = payAmount.add(oneTicketPrice);
-                emit Claim(msg.sender, _tickets[i]);
+                emit Buy(msg.sender, _tickets[i]);
             }
         }
         lotteryNFT.multiClaimReward(_tickets);
@@ -144,7 +144,7 @@ contract Lottery is Ownable {
     }
 
     function adminWithdraw(uint256 _amount) public onlyAdmin {
-        buyToken.safeTransfer(address(msg.sender), _amount);
+        sellToken.safeTransfer(address(msg.sender), _amount);
         emit DevWithdraw(msg.sender, _amount);
     }
 

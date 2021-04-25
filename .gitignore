@@ -5,6 +5,7 @@ package-lock.json
 truffle-config.js
 /node_modules/
 /build/
+/coverage/
 
 node_modules
 
@@ -13,3 +14,4 @@ cache
 artifacts
 
 yarn.lock
+coverage.json

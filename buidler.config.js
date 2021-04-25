@@ -1,4 +1,5 @@
 usePlugin("@nomiclabs/buidler-waffle");
+usePlugin("solidity-coverage");
 
 // This is a sample Buidler task. To learn how to create your own go to
 // https://buidler.dev/guides/create-task.html
@@ -28,7 +29,6 @@ module.exports = {
 
   networks: {
     buidlerevm: {
-      gas: 9500000
     },
     development: {
       url: "http://127.0.0.1:7545",
