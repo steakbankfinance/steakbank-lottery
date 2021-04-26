@@ -7,16 +7,16 @@ const MockBEP20 = artifacts.require("MockBEP20");
 contract('Lottery', ([alice, bob, carol, cal, dev, minter]) => {
     beforeEach(async () => {
         this.usdt = await MockBEP20.new('usdt', 'usdt', '1000000000', { from: minter });
-        this.skb = await MockBEP20.new('skb', 'skb', '100000000000000', { from: minter });
+        // this.skb = await MockBEP20.new('skb', 'skb', '100000000000000', { from: minter });
         this.nft = await LotteryNFT.new({ from: minter })
-        this.lottery = await Lottery.new(this.nft.address, this.skb.address,this.usdt.address, '10', '10',alice, { from: minter });
+        this.lottery = await Lottery.new(this.nft.address, this.usdt.address, '10', '10',alice, { from: minter });
 
         await this.nft.transferOwnership( this.lottery.address, {from: minter});
         await this.usdt.transfer(bob, '2000', { from: minter });
         await this.usdt.transfer(alice, '2000', { from: minter });
         await this.usdt.transfer(carol, '2000', { from: minter });
         await this.usdt.transfer(cal, '2000', { from: minter });
-        await this.skb.transfer(this.lottery.address, '5000', { from: minter });
+        // await this.skb.transfer(this.lottery.address, '5000', { from: minter });
 
         await this.lottery.setWhiteList([alice, bob, carol, cal], [1,4,10,20])
         await this.lottery.setClaimPrice('100')
@@ -43,7 +43,7 @@ contract('Lottery', ([alice, bob, carol, cal, dev, minter]) => {
         await this.lottery.multiBuy([id1,id2], {from: cal})
         await this.lottery.multiBuy([id3], {from: carol})
         await expectRevert(this.lottery.multiBuy([id1,id2], {from: cal}), 'claimed'); 
-        assert.equal((await this.skb.balanceOf(cal)).toString(), '20');
+        assert.equal((await this.lottery.selledList(0)).amount.toString(), '20');
         assert.equal((await this.usdt.balanceOf(cal)).toString(), '1800');
     });
 

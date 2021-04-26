@@ -15,6 +15,11 @@ contract Lottery is Ownable {
     using SafeMath for uint8;
     using SafeERC20 for IERC20;
 
+    struct AirdropInfo {
+        address addr;
+        uint256 amount;
+    }
+
     address public adminAddress;
     LotteryNFT public lotteryNFT;
     uint256 public winningRandomNumber; // the randomnumber to cal the winning Id
@@ -22,7 +27,8 @@ contract Lottery is Ownable {
     uint256 public winningAmount; // amount of winning tickets
     uint256 public oneTicketPrice; // claim price of one winning ticket
     uint256 public ticketsAmount; // amount of gotten tickets
-    IERC20 public sellToken; // skb
+    // IERC20 public sellToken; // skb
+    AirdropInfo[] public selledList; // skb
     IERC20 public buyToken; // usdt
     bool public drawingPhase; // default false
 
@@ -35,14 +41,14 @@ contract Lottery is Ownable {
 
     constructor(
         LotteryNFT _lottery,
-        IERC20 _sellToken,
+        // IERC20 _sellToken,
         IERC20 _buyToken,
         uint256 _oneTicketAmount,
         uint256 _winningAmount,
         address _adminAddress
     ) public {
         lotteryNFT = _lottery;
-        sellToken = _sellToken;
+        // sellToken = _sellToken;
         buyToken = _buyToken;
         oneTicketAmount = _oneTicketAmount;
         winningAmount = _winningAmount;
@@ -127,7 +133,8 @@ contract Lottery is Ownable {
         lotteryNFT.multiClaimReward(_tickets);
         if (totalReward>0) {
             buyToken.safeTransferFrom(address(msg.sender), address(this), payAmount);
-            sellToken.safeTransfer(address(msg.sender), totalReward);
+            // sellToken.safeTransfer(address(msg.sender), totalReward);
+            selledList.push(AirdropInfo(address(msg.sender), totalReward));
         }
     }
 
@@ -144,7 +151,7 @@ contract Lottery is Ownable {
     }
 
     function adminWithdraw(uint256 _amount) public onlyAdmin {
-        sellToken.safeTransfer(address(msg.sender), _amount);
+        buyToken.safeTransfer(address(msg.sender), _amount);
         emit DevWithdraw(msg.sender, _amount);
     }
 
