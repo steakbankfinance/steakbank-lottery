@@ -8,8 +8,9 @@ contract('Lottery', ([alice, bob, carol, cal, dev, minter]) => {
     beforeEach(async () => {
         this.usdt = await MockBEP20.new('usdt', 'usdt', '1000000000', { from: minter });
         // this.skb = await MockBEP20.new('skb', 'skb', '100000000000000', { from: minter });
-        this.nft = await LotteryNFT.new({ from: minter })
-        this.lottery = await Lottery.new(this.nft.address, this.usdt.address, '10', '10',alice, { from: minter });
+        this.nft = await LotteryNFT.new({ from: minter });
+        this.lottery = await Lottery.new();
+        this.lottery.initialize(this.nft.address, this.usdt.address, '10', '10',alice, { from: minter });
 
         await this.nft.transferOwnership( this.lottery.address, {from: minter});
         await this.usdt.transfer(bob, '2000', { from: minter });
@@ -48,7 +49,7 @@ contract('Lottery', ([alice, bob, carol, cal, dev, minter]) => {
     });
 
     it('admin', async () => {
-        await this.lottery.setAdmin(bob, { from: minter });
+        await this.lottery.setAdmin(bob, { from: alice });
         // await this.lottery.adminWithdraw('1000', { from: bob });
     });
 });

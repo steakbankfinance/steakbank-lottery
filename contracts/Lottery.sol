@@ -4,13 +4,13 @@ pragma experimental ABIEncoderV2;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import "@openzeppelin/contracts/math/SafeMath.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/proxy/Initializable.sol";
 
 import "./LotteryNFT.sol";
 
 // import "@nomiclabs/buidler/console.sol";
 
-contract Lottery is Ownable {
+contract Lottery is Initializable {
     using SafeMath for uint256;
     using SafeMath for uint8;
     using SafeERC20 for IERC20;
@@ -31,22 +31,26 @@ contract Lottery is Ownable {
     AirdropInfo[] public selledList; // skb
     IERC20 public buyToken; // usdt
     bool public drawingPhase; // default false
+    bool public drawed; // default false
 
     mapping (address => uint8) public whiteInfoUser;
+    mapping (address => uint256[]) public userLotteryList;
 
     event Buy(address indexed user, uint256 tokenId);
     event Drawing(uint256 indexed randomNumber, uint256 winningNumber);
     event Claim(address indexed user, uint256 tokenId);
     event DevWithdraw(address indexed user, uint256 amount);
 
-    constructor(
+    constructor() public {}
+
+    function initialize(
         LotteryNFT _lottery,
         // IERC20 _sellToken,
         IERC20 _buyToken,
         uint256 _oneTicketAmount,
         uint256 _winningAmount,
         address _adminAddress
-    ) public {
+    ) initializer public {
         lotteryNFT = _lottery;
         // sellToken = _sellToken;
         buyToken = _buyToken;
@@ -63,10 +67,6 @@ contract Lottery is Ownable {
     function setClaimPrice(uint256 _price) external onlyAdmin {
         oneTicketPrice = _price;
     }
-    
-    function drawed() public view returns(bool) {
-        return winningRandomNumber != 0;
-    }
 
     function setWhiteList(address[] memory _addresses, uint8[] memory _ticketAmout) external onlyAdmin {
         for (uint i = 0; i < _addresses.length; i++) {
@@ -75,13 +75,13 @@ contract Lottery is Ownable {
     }
 
     function enterDrawingPhase() external onlyAdmin {
-        require(!drawed(), 'drawed');
+        require(!drawed, 'drawed');
         drawingPhase = true;
     }
     
     // add externalRandomNumber to prevent node validators exploit
     function drawing(uint256 _externalRandomNumber) external onlyAdmin {
-        require(!drawed(), "reset?");
+        require(!drawed, "reset?");
         require(drawingPhase, "enter drawing phase first");
         uint256 gapNum = ticketsAmount.div(winningAmount);
         bytes32 _structHash;
@@ -99,12 +99,12 @@ contract Lottery is Ownable {
         _randomNumber  = uint256(_structHash);
         assembly {_randomNumber := mod(_randomNumber, gapNum)}
         winningRandomNumber = _randomNumber;
-
+        drawed = true;
         emit Drawing(_externalRandomNumber, winningRandomNumber);
     }
 
     function multiClaim(uint8 _amount) external {
-        require(!drawed(), 'drawed, can not buy now');
+        require(!drawed, 'drawed, can not buy now');
         require(!drawingPhase, 'drawing, can not buy now');
         require (whiteInfoUser[msg.sender] >= _amount, 'exceed tickets amount');
 
@@ -113,6 +113,7 @@ contract Lottery is Ownable {
 
         for (uint i = 0; i < _amount; i++) {
             uint256 tokenId = lotteryNFT.newLotteryItem(msg.sender);
+            userLotteryList[msg.sender].push(tokenId);
             emit Claim(msg.sender, tokenId);
         }
 
@@ -146,7 +147,7 @@ contract Lottery is Ownable {
         return false;
     }
 
-    function setAdmin(address _adminAddress) public onlyOwner {
+    function setAdmin(address _adminAddress) public onlyAdmin {
         adminAddress = _adminAddress;
     }
 

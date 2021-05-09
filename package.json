@@ -6,9 +6,11 @@
     "migrate": "truffle migrate --network bscTestnet --reset",
     "compile": "truffle compile --network bscTestnet",
     "test": "npx builder test",
-    "coverage": "npx builder coverage"
+    "coverage": "npx builder coverage",
+    "flatten" : "truffle-flattener contracts/Lottery.sol > flatten/Lottery.sol && truffle-flattener contracts/LotteryNFT.sol > flatten/LotteryNFT.sol && truffle-flattener contracts/LotteryProxy.sol > flatten/LotteryProxy.sol"
   },
   "dependencies": {
+    "@openzeppelin/contracts": "3.4.1",
     "@openzeppelin/test-helpers": "^0.5.6",
     "@pancakeswap/pancake-swap-lib": "^0.0.1",
     "truffle": "^5.1.58",

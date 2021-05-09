@@ -12,6 +12,7 @@ node_modules
 #Buidler files
 cache
 artifacts
-
+.idea
 yarn.lock
 coverage.json
+flatten/*.sol
