@@ -154,6 +154,10 @@ contract Lottery is Initializable {
         return false;
     }
 
+    function getUserLotteryListLength(address userAddr) public view returns(uint256) {
+        return userLotteryList[userAddr].length;
+    }
+
     function getSelledListLength() public view returns(uint256) {
         return selledList.length;
     }
