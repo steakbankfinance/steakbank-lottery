@@ -36,6 +36,8 @@ contract Lottery is Initializable {
     mapping (address => uint8) public whiteInfoUser;
     mapping (address => uint256[]) public userLotteryList;
 
+    bool public buyClosed;
+
     event Buy(address indexed user, uint256 tokenId);
     event Drawing(uint256 indexed randomNumber, uint256 winningNumber);
     event Claim(address indexed user, uint256 tokenId);
@@ -66,6 +68,10 @@ contract Lottery is Initializable {
 
     function setClaimPrice(uint256 _price) external onlyAdmin {
         oneTicketPrice = _price;
+    }
+
+    function closeBuy() external onlyAdmin {
+        buyClosed = true;
     }
 
     function setWhiteList(address[] memory _addresses, uint8[] memory _ticketAmout) external onlyAdmin {
@@ -120,6 +126,7 @@ contract Lottery is Initializable {
     }
 
     function multiBuy(uint256[] memory _tickets) external {
+        require(!buyClosed, 'buy closed already');
         uint256 totalReward = 0;
         uint256 payAmount = 0;
         for (uint i = 0; i < _tickets.length; i++) {
@@ -145,6 +152,10 @@ contract Lottery is Initializable {
             return true;
         }
         return false;
+    }
+
+    function getSelledListLength() public view returns(uint256) {
+        return selledList.length;
     }
 
     function setAdmin(address _adminAddress) public onlyAdmin {
