@@ -166,6 +166,10 @@ contract Lottery is Initializable {
         adminAddress = _adminAddress;
     }
 
+    function setWinningAmount(uint256 _amount) public onlyAdmin {
+        winningAmount = _amount;
+    }
+
     function adminWithdraw(uint256 _amount) public onlyAdmin {
         buyToken.safeTransfer(address(msg.sender), _amount);
         emit DevWithdraw(msg.sender, _amount);
