@@ -148,7 +148,11 @@ contract Lottery2 is Initializable {
 
     function isWinningTicket(uint256 _tokenId) public view returns(bool) {
         uint256 gapNum = ticketsAmount.div(failingAmount);
-        if(_tokenId.sub(_tokenId.div(gapNum).mul(gapNum)) == failingRandomNumber) {
+        if(
+            _tokenId.sub(_tokenId.div(gapNum).mul(gapNum)) == failingRandomNumber
+            &&
+            _tokenId <= gapNum.mul(failingAmount)
+        ) {
             return false;
         }
         return true;
