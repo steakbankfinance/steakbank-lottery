@@ -1,3 +1,3 @@
-# SteakBank Launch Lottery 🥩
+# SteakBank Pubic Lottery Sale 🥩
 
 
